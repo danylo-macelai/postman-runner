@@ -1,5 +1,6 @@
 package co.poynt.postman;
 
+import co.poynt.postman.dynamic.PostmanDynamicParameters;
 import co.poynt.postman.runner.PostmanCollectionRunner;
 import co.poynt.postman.testrail.PostmanTestrailSyncer;
 import picocli.CommandLine;
@@ -8,6 +9,7 @@ import picocli.CommandLine;
 //@formatter:off
         subcommands = {
                 PostmanCollectionRunner.class,
+                PostmanDynamicParameters.class,
                 PostmanTestrailSyncer.class
 //@formatteer:on
         })
