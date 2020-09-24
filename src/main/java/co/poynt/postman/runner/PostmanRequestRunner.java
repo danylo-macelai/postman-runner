@@ -86,6 +86,7 @@ public class PostmanRequestRunner {
 			headers.put(PoyntHttpHeaders.REQUEST_ID_HEADER, requestId);
 		}
 		logger.info("===============> requestId:" + requestId);
+        runResult.loggerRequestId(requestId);
 		String url = request.getUrl(var);
 		URI uri;
 		try {
@@ -222,6 +223,8 @@ public class PostmanRequestRunner {
 				logger.info(httpResponse.body);
 				logger.info("========RESPONSE========");
 				logger.info("=====THERE ARE TEST FAILURES=====");
+				
+                runResult.loggerFailedTest("THERE ARE TEST FAILURES:", testsAsString, httpResponse);
 			}
 		} catch (Throwable t) {
 			isSuccessful = false;
@@ -234,6 +237,8 @@ public class PostmanRequestRunner {
 			logger.info(httpResponse.body);
 			logger.info("========RESPONSE========");
 			logger.info("=====FAILED TO EVALUATE TEST AGAINST SERVER RESPONSE======");
+			
+            runResult.loggerFailedTest("FAILED TO EVALUATE TEST AGAINST SERVER RESPONSE:", testsAsString, httpResponse);
 		} finally {
 			Context.exit();
 		}
@@ -243,6 +248,7 @@ public class PostmanRequestRunner {
 	public String stringListToString(List<String> tests) {
 		StringBuilder testsBuilder = new StringBuilder();
 		for (String s : tests) {
+		    testsBuilder.append("\t");
 			testsBuilder.append(s);
 			testsBuilder.append("\n");
 		}

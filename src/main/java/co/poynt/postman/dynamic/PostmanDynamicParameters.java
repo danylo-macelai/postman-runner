@@ -48,27 +48,29 @@ public class PostmanDynamicParameters extends PostmanCollectionRunner {
      */
     @Override
     public boolean runFolder(boolean haltOnError, PostmanRequestRunner runner, PostmanVariables var,
-            PostmanFolder folder, PostmanRunResult runResult) {
+            PostmanFolder folder, PostmanRunResult result) {
 
-        initialize();
+        initialize(result);
 
-        logger.info("==> POSTMAN Folder: " + folder.name);
+        result.loggerStartFolder(folder.name);
         Boolean isSuccessful = true;
         boolean runSuccess = false;
         LinkedList<List<PostmanUrlEncoded>> parameters = null;
         for (PostmanItem fItem : folder.item) {
-            logger.info("======> POSTMAN request: " + fItem.name);
+            result.loggerStartRequest(fItem.name);
             try {
                 parameters = csvData.get(fItem.name);
                 if (parameters != null && !parameters.isEmpty()) {
                     for (List<PostmanUrlEncoded> params : parameters) {
-                        runResult.totalRequest++;
-                        logger.info(String.format("========> Changing the [%s] service arguments.", fItem.name));
+                        result.loggerTotalRequest();
+                        result.loggerParams(params);
+                        
                         fItem.request.body.urlencoded = params;
-                        runSuccess = runner.run(fItem, runResult);
+                        runSuccess = runner.run(fItem, result);
+                        
                         if (!runSuccess) {
-                            runResult.failedRequest++;
-                            runResult.failedRequestName.add(folder.name + "." + fItem.name);
+                            result.failedRequest++;
+                            result.failedRequestName.add(folder.name + "." + fItem.name);
                         }
                         isSuccessful = runSuccess && isSuccessful;
                         if (haltOnError && !isSuccessful) {
@@ -76,11 +78,12 @@ public class PostmanDynamicParameters extends PostmanCollectionRunner {
                         }
                     }
                 } else {
-                    runResult.totalRequest++;
-                    runSuccess = runner.run(fItem, runResult);
+                    result.totalRequest++;
+                    result.loggerParams(fItem.request.body.urlencoded);
+                    runSuccess = runner.run(fItem, result);
                     if (!runSuccess) {
-                        runResult.failedRequest++;
-                        runResult.failedRequestName.add(folder.name + "." + fItem.name);
+                        result.failedRequest++;
+                        result.failedRequestName.add(folder.name + "." + fItem.name);
                     }
                     isSuccessful = runSuccess && isSuccessful;
                     if (haltOnError && !isSuccessful) {
@@ -89,8 +92,8 @@ public class PostmanDynamicParameters extends PostmanCollectionRunner {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                runResult.failedRequest++;
-                runResult.failedRequestName.add(folder.name + "." + fItem.name);
+                result.failedRequest++;
+                result.failedRequestName.add(folder.name + "." + fItem.name);
                 return false;
             }
 
@@ -98,7 +101,7 @@ public class PostmanDynamicParameters extends PostmanCollectionRunner {
         return isSuccessful;
     }
 
-    private void initialize() {
+    private void initialize(PostmanRunResult result) {
         if (csvData != null) {
             return;
         }
@@ -108,6 +111,10 @@ public class PostmanDynamicParameters extends PostmanCollectionRunner {
         if (!file.exists()) {
             throw new RuntimeException(String.format("File [%s] is not found!", csvFile));
         }
+        
+        String directory = file.getParent();
+        result.fileLog = directory + File.separator + "PostmanDynamicParameters_" + System.currentTimeMillis() + ".log";
+        
         List<PostmanUrlEncoded> parameters;
         CSVParser parser = new CSVParserBuilder().withIgnoreQuotations(true).build();
         try (FileInputStream fis = new FileInputStream(file);
