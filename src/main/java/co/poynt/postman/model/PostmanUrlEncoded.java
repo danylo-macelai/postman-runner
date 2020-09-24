@@ -1,7 +1,8 @@
 package co.poynt.postman.model;
 
 public class PostmanUrlEncoded {
-	public String key;
-	public String value;
-	public String type;
+    public String key;
+    public String value;
+    public String src;
+    public String type;
 }

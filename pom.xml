@@ -44,6 +44,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<jackson.version>2.11.0</jackson.version>
 		<testng.version>6.8.8</testng.version>
+		<opencsv.version>5.2</opencsv.version>
 	</properties>
 
 	<dependencies>
@@ -105,6 +106,11 @@
 			<groupId>com.mashape.unirest</groupId>
 			<artifactId>unirest-java</artifactId>
 			<version>1.4.9</version>
+		</dependency>
+		<dependency>
+			<groupId>com.opencsv</groupId>
+			<artifactId>opencsv</artifactId>
+			<version>${opencsv.version}</version>
 		</dependency> 
 	</dependencies>
 	<build>
