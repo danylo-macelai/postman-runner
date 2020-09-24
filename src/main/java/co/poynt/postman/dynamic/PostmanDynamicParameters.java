@@ -23,8 +23,13 @@ import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 
+import co.poynt.postman.model.PostmanFolder;
+import co.poynt.postman.model.PostmanItem;
 import co.poynt.postman.model.PostmanUrlEncoded;
+import co.poynt.postman.model.PostmanVariables;
 import co.poynt.postman.runner.PostmanCollectionRunner;
+import co.poynt.postman.runner.PostmanRequestRunner;
+import co.poynt.postman.runner.PostmanRunResult;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "dynamic", description = "Postman runner with dynamic parameters")
@@ -42,13 +47,62 @@ public class PostmanDynamicParameters extends PostmanCollectionRunner {
      * {@inheritDoc}
      */
     @Override
-    public void run() {
+    public boolean runFolder(boolean haltOnError, PostmanRequestRunner runner, PostmanVariables var,
+            PostmanFolder folder, PostmanRunResult runResult) {
 
         initialize();
 
+        logger.info("==> POSTMAN Folder: " + folder.name);
+        Boolean isSuccessful = true;
+        boolean runSuccess = false;
+        LinkedList<List<PostmanUrlEncoded>> parameters = null;
+        for (PostmanItem fItem : folder.item) {
+            logger.info("======> POSTMAN request: " + fItem.name);
+            try {
+                parameters = csvData.get(fItem.name);
+                if (parameters != null && !parameters.isEmpty()) {
+                    for (List<PostmanUrlEncoded> params : parameters) {
+                        runResult.totalRequest++;
+                        logger.info(String.format("========> Changing the [%s] service arguments.", fItem.name));
+                        fItem.request.body.urlencoded = params;
+                        runSuccess = runner.run(fItem, runResult);
+                        if (!runSuccess) {
+                            runResult.failedRequest++;
+                            runResult.failedRequestName.add(folder.name + "." + fItem.name);
+                        }
+                        isSuccessful = runSuccess && isSuccessful;
+                        if (haltOnError && !isSuccessful) {
+                            return isSuccessful;
+                        }
+                    }
+                } else {
+                    runResult.totalRequest++;
+                    runSuccess = runner.run(fItem, runResult);
+                    if (!runSuccess) {
+                        runResult.failedRequest++;
+                        runResult.failedRequestName.add(folder.name + "." + fItem.name);
+                    }
+                    isSuccessful = runSuccess && isSuccessful;
+                    if (haltOnError && !isSuccessful) {
+                        return isSuccessful;
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                runResult.failedRequest++;
+                runResult.failedRequestName.add(folder.name + "." + fItem.name);
+                return false;
+            }
+
+        }
+        return isSuccessful;
     }
 
     private void initialize() {
+        if (csvData != null) {
+            return;
+        }
+        
         csvData = new HashMap<>();
         File file = new File(csvFile);
         if (!file.exists()) {

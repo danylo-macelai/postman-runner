@@ -111,7 +111,7 @@ public class PostmanCollectionRunner extends CmdBase implements Runnable {
 		return runResult;
 	}
 
-	private boolean runFolder(boolean haltOnError, PostmanRequestRunner runner, PostmanVariables var,
+	public boolean runFolder(boolean haltOnError, PostmanRequestRunner runner, PostmanVariables var,
 			PostmanFolder folder, PostmanRunResult runResult) {
 		logger.info("==> POSTMAN Folder: " + folder.name);
 		boolean isSuccessful = true;
