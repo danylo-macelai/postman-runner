@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import javax.net.ssl.SSLContext;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
@@ -22,8 +23,6 @@ import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.ssl.SSLContexts;
@@ -77,13 +76,10 @@ public class PostmanRequestRunner {
 		runPrerequestScript(item, runResult);
 		PostmanRequest request = item.request;
 		Map<String, String> headers = request.getHeaders(var);
-		StringEntity entity;
-		if (request.body != null && request.body.mode != null && request.body.mode.equals("urlencoded")) {
-			headers.put("Content-Type", "application/x-www-form-urlencoded");
-			entity = new StringEntity(request.getData(var), ContentType.APPLICATION_FORM_URLENCODED);
-		} else {
-			entity = new StringEntity(request.getData(var), ContentType.APPLICATION_JSON);
-		}
+		HttpEntity entity = request.getData(var);
+        if (request.body != null && request.body.mode != null && request.body.mode.equals("urlencoded")) {
+            headers.put("Content-Type", "application/x-www-form-urlencoded");
+        }
 		String requestId = headers.get(PoyntHttpHeaders.REQUEST_ID_HEADER);
 		if (requestId == null) {
 			requestId = UUID.randomUUID().toString();
