@@ -1,0 +1,171 @@
+{
+	"info": {
+		"_postman_id": "67d1fa13-f2fd-4347-8507-06ccf90712db",
+		"name": "PostmanDynamicParameters",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "demo-dyna-params",
+			"item": [
+				{
+					"name": "Auth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b6879186-38d4-46ef-afe6-27efac56bdaf",
+								"exec": [
+									"tests[\"Status code is 200\"] = responseCode.code === 200;\r",
+									"\r",
+									"var data = JSON.parse(responseBody);\r",
+									"\r",
+									"tests[\"Login is admin\"] = data.form.login === \"admin\";\r",
+									"\r",
+									"tests[\"Password is 12345678\"] = data.form.password === \"12345678\";\r",
+									"\r",
+									"postman.setEnvironmentVariable(\"token\", \"ABCD12345\");\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "login",
+									"value": "admin",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "12345678",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://postman-echo.com/post",
+							"protocol": "https",
+							"host": [
+								"postman-echo",
+								"com"
+							],
+							"path": [
+								"post"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cadastro",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "6385e02e-38b5-4dbe-b8d2-2cf24baba00e",
+								"exec": [
+									"tests[\"Status code is 200\"] = responseCode.code == 200; \r",
+									"\r",
+									"var data = JSON.parse(responseBody); \r",
+									"\r",
+									"tests[\"Token is ABCD12345\"] = data.args.auth === \"ABCD12345\"; \r",
+									"\r",
+									"tests[\"identificador is 101 or 102 or 103\"] = data.form.identificador > 100  && data.form.identificador < 114; \r",
+									"\r",
+									"tests[\"codigo_tipo is 10 or 11 or 12\"] = data.form.codigo_tipo > 9 && data.form.codigo_tipo < 13; \r",
+									"\r",
+									"tests[\"descritivo is AAA or BBB or CCC\"] = data.form.descritivo === \"AAA\" || data.form.descritivo === \"BBB\" || data.form.descritivo === \"CCC\"; "
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "identificador",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "codigo_tipo",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "descritivo",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "bin_imagem",
+									"type": "file",
+									"src": ""
+								}
+							]
+						},
+						"url": {
+							"raw": "https://postman-echo.com/post?auth={{token}}&response_type=json",
+							"protocol": "https",
+							"host": [
+								"postman-echo",
+								"com"
+							],
+							"path": [
+								"post"
+							],
+							"query": [
+								{
+									"key": "auth",
+									"value": "{{token}}"
+								},
+								{
+									"key": "response_type",
+									"value": "json"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "6ce25059-3eab-479f-904c-172650e0d028",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "a5772303-9aee-459b-ad93-ae440e96e64b",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"protocolProfileBehavior": {}
+}

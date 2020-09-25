@@ -212,6 +212,7 @@ public class PostmanRequestRunner {
 				}
 
 				logger.info(testName + ": " + e.getKey() + " - " + e.getValue());
+				runResult.loggerTestDetails("tests[\"", e.getKey(), "] = ", e.getValue());
 			}
 			if (hasFailure) {
 				logger.info("=====THERE ARE TEST FAILURES=====");
@@ -225,6 +226,8 @@ public class PostmanRequestRunner {
 				logger.info("=====THERE ARE TEST FAILURES=====");
 				
                 runResult.loggerFailedTest("THERE ARE TEST FAILURES:", testsAsString, httpResponse);
+			} else {
+			    runResult.loggerTestSuccess();
 			}
 		} catch (Throwable t) {
 			isSuccessful = false;

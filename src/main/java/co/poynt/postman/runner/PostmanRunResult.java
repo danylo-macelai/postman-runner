@@ -20,7 +20,8 @@ public class PostmanRunResult {
     public List<String> failedTestName    = new ArrayList<>();
 
     public String         fileLog;
-    private StringBuilder sb              = new StringBuilder();
+    private StringBuilder logger          = new StringBuilder();
+    private StringBuilder details         = new StringBuilder();
     private List<String>  failedIdRequest = new ArrayList<>();
 
     @Override
@@ -39,7 +40,7 @@ public class PostmanRunResult {
             saveLog();
         }
 
-        return sb.toString();
+        return logger.toString();
     }
 
     public boolean isSuccessful() {
@@ -77,13 +78,34 @@ public class PostmanRunResult {
         loggertab(requestId);
     }
 
+    public void loggerTestSuccess() {
+        if (details.length() > 0) {
+            loggerln();
+            loggerln("Test Success:");
+            loggerln(details);
+            details = new StringBuilder();
+        }
+    }
+    public void loggerTestDetails(Object... info) {
+        details.append("\t");
+        Stream.of(info).forEach(i -> {
+            details.append(i);
+        });
+        details.append("\n\n");
+    }
+    
     public void loggerFailedTest(String label, String test, PostmanHttpResponse response) {
         loggerln();
         loggerln(label);
-        loggertab("a) Test");
+        loggertab("Test:");
         loggertab(test);
         loggerln();
-        loggertab("b) Response");
+        if (details.length() > 0) {
+            loggertab("Details:");
+            loggerln(details);
+            details = new StringBuilder();
+        }
+        loggertab("Response:");
         loggertab("Response Code: ", String.valueOf(response.code));
         loggertab(response.body);
         loggerln();
@@ -93,87 +115,22 @@ public class PostmanRunResult {
 
     private void loggerln(Object... info) {
         Stream.of(info).forEach(i -> {
-            sb.append(i);
+            logger.append(i);
         });
-        sb.append("\n");
+        logger.append("\n");
     }
 
     private void loggertab(Object... info) {
-        sb.append("\t");
+        logger.append("\t");
         loggerln(info);
     }
 
-    
-    /**
-     *  Creating a report of the work done
-     *  
-     *  Example:
-     * 
-     *            ==============================================================
-     *            POSTMAN Folder: smartsheet
-     *
-     *            ===============================
-     *            POSTMAN request: Auth
-     *
-     *            Parameters: 
-     *                [key=login,src=<null>,type=text,value=admin]
-     *                [key=password,src=<null>,type=text,value=123456]
-     *
-     *            requestId: 
-     *                93aa95f5-a781-4b78-9e5f-0874b344766e
-     *
-     *            ===============================
-     *            POSTMAN request: Cadastro
-     *
-     *            ==============
-     *            ID: 2
-     *
-     *            Parameters: 
-     *                [key=identificador,src=<null>,type=text,value=00002/2020]
-     *                [key=codigo_tipo,src=<null>,type=text,value=10]
-     *                [key=descritivo,src=<null>,type=text,value=Joao]
-     *                [key=bin_imagem,src=C:\imgs\profile_22.jpg,type=file,value=<null>]
-     *
-     *            requestId: 
-     *                c58d69cc-3d98-4e32-ab80-f40e38067012
-     *            ==============
-     *            ID: 3
-     *
-     *            Parameters: 
-     *                [key=identificador,src=<null>,type=text,value=00001/2020]
-     *                [key=codigo_tipo,src=<null>,type=text,value=10]
-     *                [key=descritivo,src=<null>,type=text,value=Maria]
-     *                [key=bin_imagem,src=C:\imgs\profile_1.jpg,type=file,value=<null>]
-     *
-     *            requestId: 
-     *                4ae6effa-5fe2-47b3-a96a-4d29290be17f
-     *
-     *            THERE ARE TEST FAILURES:
-     *                a) Test
-     *                const responseJson = JSON.parse(responseBody);
-     *                
-     *                tests["is success"] = responseJson.message.type == "success";
-     *
-     *                b) Response
-     *                Response Code: 200
-     *                {"data":{},"service":{"name":"Cadastro"},"message":{"type":"error","value":"Já existe registro com este identificador."}}
-     *
-     *            *************************************
-     *            Total Requests = 3
-     *            Failed Requests = 1
-     *            Total Tests = 3
-     *            Failed Tests = 1
-     *            Failed Request ID: [3]
-     *            Failed Request Names: [smartsheet.Cadastro]
-     *            Failed Test Names: [Cadastro.is success]
-     *            *************************************    
-     */
     private void saveLog() {
         try {
             File targetFile = new File(fileLog);
             targetFile.createNewFile();
             try (Writer targetFileWriter = new FileWriter(targetFile)) {
-                targetFileWriter.write(sb.toString());
+                targetFileWriter.write(logger.toString());
                 targetFileWriter.close();
             }
         } catch (IOException e) {

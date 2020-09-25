@@ -1,0 +1,4 @@
+service_name,identificador,codigo_tipo,descritivo,bin_imagem
+Cadastro,101,10,AAA,PostmanDynamicParameters.jpg
+Cadastro,102,11,BBB,PostmanDynamicParameters.jpg
+Cadastro,103,12,CCC,PostmanDynamicParameters.jpg
